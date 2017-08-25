@@ -114,6 +114,20 @@ void RunTests() {
   all_pass &= CheckResult(ShortestDistance(4, 5, distance, neighbours), 6);
   all_pass &= CheckResult(ShortestDistance(4, 7, distance, neighbours), 4);    
   
+  distance = {{{0, 999}, 1000}, {{999, 0}, 1000},
+              {{998, 999}, 1}, {{999, 998}, 1}};
+  neighbours = {{0, {999}}, {999, {0, 998}}, {998, {999}}};
+  for (int i = 1; i < 999; ++i) {
+    distance[std::make_pair(i, i - 1)] = 1;
+    distance[std::make_pair(i - 1, i)] = 1;
+    neighbours[i].insert(i - 1);
+    neighbours[i - 1].insert(i);
+  }
+  std::cout << "Cirle graph with one edge of 1000 and 999 edges of 1:"
+            << std::endl;
+  all_pass &= CheckResult(ShortestDistance(999, 0, distance, neighbours), 999);
+  all_pass &= CheckResult(ShortestDistance(1, 998, distance, neighbours), 997);
+
   if (!all_pass) {
     std::cout << "Some tests are failing!" << std::endl;
   } else {
