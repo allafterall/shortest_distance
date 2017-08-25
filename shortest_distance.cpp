@@ -43,6 +43,8 @@ void ReadGraph(const std::string& filename, DistanceMap *distance,
 double ShortestDistance(Node from, Node to,
                         const DistanceMap &distance,
                         const AdjacencySet &neighbours) {
+  assert(neighbours.count(from) != 0);
+  assert(neighbours.count(to) != 0);
   typedef std::pair<double, Node> NodeDistance;
   std::priority_queue <NodeDistance, std::vector<NodeDistance>,
                        std::greater<NodeDistance>> nodes_in_process;
@@ -73,17 +75,67 @@ double ShortestDistance(Node from, Node to,
   return -1;
 }
 
-int main(int argc, char* argv[]) {
-  assert(argc == 4);
+bool CheckResult(double actual, double expected) {
+  // Normally we should not compare doubles like that but it's fine as long as
+  // values are integer.
+  std::cout << "\t" << (actual == expected ? "Pass" : "Fail") << ", expected: " 
+            << expected << ", actual: " << actual << std::endl;
+  return actual == expected;
+}
 
+void RunTests() {
+  DistanceMap distance;
+  AdjacencySet neighbours;
+  bool all_pass = true;
+
+  distance = {};
+  neighbours = {{0, {}}};
+  std::cout << "Only one node:" << std::endl; 
+  all_pass &= CheckResult(ShortestDistance(0, 0, distance, neighbours), 0);
+  
+  distance = {{{0, 1}, 1}, {{1, 0}, 1}};
+  neighbours = {{0, {1}}, {1, {0}}};
+  std::cout << "Two connected nodes:" << std::endl;
+  all_pass &= CheckResult(ShortestDistance(0, 1, distance, neighbours), 1);
+
+  distance = {};
+  neighbours = {{0, {}}, {1, {}}};
+  std::cout << "Two disconnected nodes:" << std::endl;
+  all_pass &= CheckResult(ShortestDistance(0, 1, distance, neighbours), -1);
+
+  distance = {};
+  neighbours = {};
+  ReadGraph("data/test_graph.txt", &distance, &neighbours);
+  std::cout << "Graph with two connectivity components:" << std::endl;
+  all_pass &= CheckResult(ShortestDistance(0, 3, distance, neighbours), 6);
+  all_pass &= CheckResult(ShortestDistance(2, 1, distance, neighbours), 2);
+  all_pass &= CheckResult(ShortestDistance(0, 3, distance, neighbours), 6);
+  all_pass &= CheckResult(ShortestDistance(3, 7, distance, neighbours), -1);
+  all_pass &= CheckResult(ShortestDistance(4, 5, distance, neighbours), 6);
+  all_pass &= CheckResult(ShortestDistance(4, 7, distance, neighbours), 4);    
+  
+  if (!all_pass) {
+    std::cout << "Some tests are failing!" << std::endl;
+  } else {
+    std::cout << "All tests are passing!" << std::endl;
+  }
+}
+
+int main(int argc, char* argv[]) {
+  if (argc == 1) {
+    std::cout << "Running tests" << std::endl;
+    RunTests();
+    return 0;
+  }
+
+  assert(argc == 4);
+  
   Node from = std::stoll(argv[2]);
   Node to = std::stoll(argv[3]);
 
   DistanceMap distance;
   AdjacencySet neighbours;
   ReadGraph(argv[1], &distance, &neighbours);
-  assert(neighbours.count(from) != 0);
-  assert(neighbours.count(to) != 0);
   
   std::cout << "Shortest distance between " << from << " and " << to << ": "
             << ShortestDistance(from, to, distance, neighbours) << std::endl;

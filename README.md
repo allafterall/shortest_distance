@@ -18,3 +18,9 @@ Sample run:
 ```bash
 ./shortest_distance.bin data/graph.txt 316319897 316319936
 ```
+
+To run tests don't use any agruments:
+
+```bash
+./shortest_distance.bin
+```
