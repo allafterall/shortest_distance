@@ -10,7 +10,9 @@
 #include <queue>
 
 typedef long long Node;
+// For each node we keep set of adjacent nodes.
 typedef std::map<Node, std::set<Node>> AdjacencySet;
+// For each nodes connected with edge we keep distance between them.
 typedef std::map<std::pair<Node, Node>, double> DistanceMap;
 
 void ReadGraph(const std::string& filename, DistanceMap *distance,
@@ -40,11 +42,18 @@ void ReadGraph(const std::string& filename, DistanceMap *distance,
   }
 }
 
+// Calculate shortest path distance between nodes from and to given map of
+// distances between nodes and set of neighbours for each node.
+// Please note that distance must be non-negative.
+// Also AdjacencySet must be initialized for each available node id (in case 
+// some node has no neighbours set should be empty)
+// Returns shortest distance if nodes are connected and -1 otherwise.
 double ShortestDistance(Node from, Node to,
                         const DistanceMap &distance,
                         const AdjacencySet &neighbours) {
   assert(neighbours.count(from) != 0);
   assert(neighbours.count(to) != 0);
+
   typedef std::pair<double, Node> NodeDistance;
   std::priority_queue <NodeDistance, std::vector<NodeDistance>,
                        std::greater<NodeDistance>> nodes_in_process;
@@ -63,6 +72,7 @@ double ShortestDistance(Node from, Node to,
       if (visited_nodes.count(neighbour) != 0) continue;
       auto edge = std::make_pair(top.second, neighbour);
       if (distance.count(edge) == 0) continue;
+      assert(distance.at(edge) >= 0);
       double new_estimate = top.first + distance.at(edge);
       if (current_estimate.count(neighbour) == 0 ||
           new_estimate < current_estimate[neighbour]) {
@@ -112,7 +122,7 @@ void RunTests() {
   all_pass &= CheckResult(ShortestDistance(0, 3, distance, neighbours), 6);
   all_pass &= CheckResult(ShortestDistance(3, 7, distance, neighbours), -1);
   all_pass &= CheckResult(ShortestDistance(4, 5, distance, neighbours), 6);
-  all_pass &= CheckResult(ShortestDistance(4, 7, distance, neighbours), 4);    
+  all_pass &= CheckResult(ShortestDistance(4, 7, distance, neighbours), 0);    
   
   distance = {{{0, 999}, 1000}, {{999, 0}, 1000},
               {{998, 999}, 1}, {{999, 998}, 1}};
