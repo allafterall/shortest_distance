@@ -1,9 +1,4 @@
-// Implementation of Dijkstra algorithm to find shortest path between two points
-// Sample run:
-//   $g++ -std=c++11 -o shortest_path.bin shortest_path.cpp
-//   $./shortest_path.bin citymapper-coding-test-graph.dat 316319897 316319936
-// first argument is a file with input graph, second and third arguments are
-// ids of origin and destination. 
+// Implementation of Dijkstra algorithm to find shortest path between two points 
 #include <cassert>
 #include <fstream>
 #include <iostream>
