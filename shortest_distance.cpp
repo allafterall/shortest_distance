@@ -67,7 +67,6 @@ double ShortestDistance(Node from, Node to,
     visited_nodes.insert(top.second);
     if (top.second == to) return top.first;
 
-    current_estimate[top.second] = top.first;
     for (Node neighbour : neighbours.at(top.second)) {
       if (visited_nodes.count(neighbour) != 0) continue;
       auto edge = std::make_pair(top.second, neighbour);
